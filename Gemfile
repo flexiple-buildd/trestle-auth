@@ -12,10 +12,12 @@ group :test do
   gem "capybara"
 
   gem "sqlite3", "~> 1.4"
-  gem "devise"
 end
 
 gem "rails", "~> 7.1.0"
+
+gem "devise"
+gem "cancancan"
 gem "trestle", github: "TrestleAdmin/trestle"
 
 # Specify your gem's dependencies in trestle-auth.gemspec
