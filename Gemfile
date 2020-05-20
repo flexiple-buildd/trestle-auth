@@ -18,6 +18,8 @@ gem "rails", "~> 7.1.0"
 
 gem "devise"
 gem "cancancan"
+gem "pundit"
+
 gem "trestle", github: "TrestleAdmin/trestle"
 
 # Specify your gem's dependencies in trestle-auth.gemspec
