@@ -60,8 +60,20 @@ module Trestle
 
       option :login_url, -> { login_url }, evaluate: false
 
-      option :redirect_on_login, -> { Trestle.config.path }, evaluate: false
+      option :redirect_on_login, -> { Trestle.config.root }, evaluate: false
       option :redirect_on_logout, -> { login_url }, evaluate: false
+
+      option :redirect_on_access_denied, -> {
+        if authorized?(:index)
+          admin.path(:index)
+        else
+          default_admin = Trestle.admins.values.find { |admin|
+            admin.new(self).authorized?(:index)
+          }
+
+          default_admin ? default_admin.path : Trestle.config.root
+        end
+      }, evaluate: false
 
       option :logo
 
@@ -71,6 +83,26 @@ module Trestle
 
       def backend=(backend)
         assign(:backend, Backends.lookup(backend))
+      end
+
+      option :authorization_adapter
+
+      def authorize_with(options_or_class)
+        if options_or_class.is_a?(Hash)
+          if ability = (options_or_class[:cancancan] || options_or_class[:cancan])
+            authorize_with(CanCanAdapter.build(ability))
+          elsif policy = options_or_class[:pundit]
+            authorize_with(PunditAdapter.build(policy))
+          else
+            raise ArgumentError, "unrecognized options"
+          end
+        else
+          assign(:authorization_adapter, options_or_class)
+        end
+      end
+
+      def authorize(&block)
+        authorize_with(DSL.build(&block))
       end
 
       option :warden, Warden.new
